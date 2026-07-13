@@ -1,59 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, Play, Music2, X } from 'lucide-react'
-
-const miembros = [
-  {
-    id: 1,
-    nombre: 'DJ Skull',
-    rol: 'DJ / Producer',
-    bio: 'Pionero del sonido underground en la escena local. Más de 10 años mezclando techno industrial y dub techno.',
-    foto: 'https://placehold.co/400x400/1a1a1a/FF5B00?text=DJ+Skull',
-    redes: {
-      instagram: 'https://instagram.com',
-      youtube: 'https://youtube.com',
-      soundcloud: 'https://soundcloud.com',
-    },
-    tags: ['Techno', 'Industrial', 'Dub'],
-  },
-  {
-    id: 2,
-    nombre: 'La Parca',
-    rol: 'DJ / Visual Artist',
-    bio: 'Fusiona música y arte visual en cada set. Responsable de la identidad gráfica del colectivo.',
-    foto: 'https://placehold.co/400x400/1a1a1a/FF5B00?text=La+Parca',
-    redes: {
-      instagram: 'https://instagram.com',
-      youtube: 'https://youtube.com',
-      soundcloud: 'https://soundcloud.com',
-    },
-    tags: ['Dark Techno', 'Visual Art', 'Design'],
-  },
-  {
-    id: 3,
-    nombre: 'Miembro 3',
-    rol: 'Live Act',
-    bio: 'Presenta sets en vivo con síntesis modular y percusión electrónica. Su sonido desafía los límites del género.',
-    foto: 'https://placehold.co/400x400/1a1a1a/FF5B00?text=Miembro+3',
-    redes: {
-      instagram: 'https://instagram.com',
-      soundcloud: 'https://soundcloud.com',
-    },
-    tags: ['Modular', 'Live', 'Ambient'],
-  },
-  {
-    id: 4,
-    nombre: 'Miembro 4',
-    rol: 'Booking / Manager',
-    bio: 'El cerebro detrás de la logística del colectivo. Coordina fechas, sponsors y relaciones con venues.',
-    foto: 'https://placehold.co/400x400/1a1a1a/FF5B00?text=Miembro+4',
-    redes: {
-      instagram: 'https://instagram.com',
-    },
-    tags: ['Booking', 'Management', 'Production'],
-  },
-]
+import { Instagram, Youtube, Music2, X } from 'lucide-react'
+import { db } from '@/lib/firebase'
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore'
 
 function MiembroCard({ miembro, index, onClick }) {
   return (
@@ -171,8 +121,33 @@ function MiembroCard({ miembro, index, onClick }) {
 }
 
 export default function Miembros() {
+  const [miembros, setMiembros] = useState([])
+  const [loading, setLoading]   = useState(true)
   const [selected, setSelected] = useState(null)
 
+   useEffect(() => {
+    
+    async function fetchMiembros() {
+      try {
+        const q = query(collection(db, 'users'), where('rol', '==', 'colaborador'))
+        const snap = await getDocs(q)
+        setMiembros(snap.docs.map(d => ({
+          id: d.id,
+          nombre: d.data().nombre || 'Sin nombre',
+          rol: d.data().rolArtistico || 'Colaborador',
+          bio: d.data().bio || '',
+          foto: d.data().avatar || 'https://placehold.co/400x400/1a1a1a/FF5B00?text=' + encodeURIComponent(d.data().nombre || '?'),
+          redes: d.data().redes || {},
+          tags: d.data().tags || [],
+        })))
+      } catch {
+        setMiembros([])
+      }
+      setLoading(false)
+    }
+    fetchMiembros()
+  }, [])
+  
   return (
     <section id="miembros" style={{
       backgroundColor: '#0a0a0a',
@@ -209,16 +184,23 @@ export default function Miembros() {
           </h2>
         </motion.div>
 
-        {/* Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-          gap: '1.5rem',
-        }}>
-          {miembros.map((m, i) => (
-            <MiembroCard key={m.id} miembro={m} index={i} onClick={setSelected} />
-          ))}
-        </div>
+       {loading ? (
+          <p style={{ color: '#f5f5f5', opacity: 0.3, textAlign: 'center', padding: '3rem' }}>Cargando...</p>
+        ) : miembros.length === 0 ? (
+          <p style={{ color: '#f5f5f5', opacity: 0.25, textAlign: 'center', padding: '3rem' }}>
+            Aún no hay miembros registrados.
+          </p>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+            gap: '1.5rem',
+          }}>
+            {miembros.map((m, i) => (
+              <MiembroCard key={m.id} miembro={m} index={i} onClick={setSelected} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Modal detalle */}

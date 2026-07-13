@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { Send, Mic2, Users, CheckCircle, AlertCircle } from 'lucide-react'
+import { db } from '@/lib/firebase'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 
 const inputStyle = {
   width: '100%',
@@ -41,13 +43,28 @@ function FormContratacion({ onSuccess }) {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
   const [error, setError] = useState(null)
 
+  // const onSubmit = async (data) => {
+  //   setError(null)
+  //   try {
+  //     // Aquí conectarás con Resend en la Fase 4
+  //     // Por ahora simula el envío
+  //     await new Promise(r => setTimeout(r, 1200))
+  //     console.log('Contratación:', data)
+  //     reset()
+  //     onSuccess()
+  //   } catch (e) {
+  //     setError('Hubo un error al enviar. Intenta de nuevo.')
+  //   }
+  // }
+
   const onSubmit = async (data) => {
     setError(null)
     try {
-      // Aquí conectarás con Resend en la Fase 4
-      // Por ahora simula el envío
-      await new Promise(r => setTimeout(r, 1200))
-      console.log('Contratación:', data)
+      await addDoc(collection(db, 'mensajes'), {
+        ...data,
+        tipo: 'contratacion',
+        createdAt: serverTimestamp(),
+      })
       reset()
       onSuccess()
     } catch (e) {
@@ -193,11 +210,26 @@ function FormColaboracion({ onSuccess }) {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
   const [error, setError] = useState(null)
 
+  // const onSubmit = async (data) => {
+  //   setError(null)
+  //   try {
+  //     await new Promise(r => setTimeout(r, 1200))
+  //     console.log('Colaboración:', data)
+  //     reset()
+  //     onSuccess()
+  //   } catch (e) {
+  //     setError('Hubo un error al enviar. Intenta de nuevo.')
+  //   }
+  // }
+
   const onSubmit = async (data) => {
     setError(null)
     try {
-      await new Promise(r => setTimeout(r, 1200))
-      console.log('Colaboración:', data)
+      await addDoc(collection(db, 'mensajes'), {
+        ...data,
+        tipo: 'colaboracion',
+        createdAt: serverTimestamp(),
+      })
       reset()
       onSuccess()
     } catch (e) {

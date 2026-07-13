@@ -1,56 +1,32 @@
 'use client'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ExternalLink } from 'lucide-react'
-
-const sponsors = [
-  {
-    id: 1,
-    nombre: 'Sponsor Principal',
-    tipo: 'principal',
-    logo: 'https://placehold.co/200x80/1a1a1a/FF5B00?text=SPONSOR+1',
-    url: '#',
-  },
-  {
-    id: 2,
-    nombre: 'Sponsor 2',
-    tipo: 'principal',
-    logo: 'https://placehold.co/200x80/1a1a1a/FF5B00?text=SPONSOR+2',
-    url: '#',
-  },
-  {
-    id: 3,
-    nombre: 'Colaborador 1',
-    tipo: 'colaborador',
-    logo: 'https://placehold.co/160x60/1a1a1a/FF5B00?text=COLAB+1',
-    url: '#',
-  },
-  {
-    id: 4,
-    nombre: 'Colaborador 2',
-    tipo: 'colaborador',
-    logo: 'https://placehold.co/160x60/1a1a1a/FF5B00?text=COLAB+2',
-    url: '#',
-  },
-  {
-    id: 5,
-    nombre: 'Colaborador 3',
-    tipo: 'colaborador',
-    logo: 'https://placehold.co/160x60/1a1a1a/FF5B00?text=COLAB+3',
-    url: '#',
-  },
-  {
-    id: 6,
-    nombre: 'Colaborador 4',
-    tipo: 'colaborador',
-    logo: 'https://placehold.co/160x60/1a1a1a/FF5B00?text=COLAB+4',
-    url: '#',
-  },
-]
-
-const principales = sponsors.filter(s => s.tipo === 'principal')
-const colaboradores = sponsors.filter(s => s.tipo === 'colaborador')
+import { db } from '@/lib/firebase'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'
 
 export default function Sponsors() {
+  const [sponsors, setSponsors] = useState([])
+  const [loading, setLoading]   = useState(true)
+
+  useEffect(() => {
+    async function fetchSponsors() {
+      try {
+        const q = query(collection(db, 'sponsors'), orderBy('createdAt', 'desc'))
+        const snap = await getDocs(q)
+        setSponsors(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+      } catch {
+        setSponsors([])
+      }
+      setLoading(false)
+    }
+    fetchSponsors()
+  }, [])
+
+  const principales = sponsors.filter(s => s.tipo === 'principal')
+  const colaboradores = sponsors.filter(s => s.tipo === 'colaborador')
+
+
   return (
     <section id="sponsors" style={{
       backgroundColor: '#111',
@@ -58,7 +34,9 @@ export default function Sponsors() {
       borderTop: '1px solid #1a1a1a',
     }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-
+        {loading && (
+          <p style={{ color: '#f5f5f5', opacity: 0.3, textAlign: 'center', padding: '2rem' }}>Sin Sponsors...</p>
+        )}
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}

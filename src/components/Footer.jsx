@@ -3,12 +3,12 @@ import Image from 'next/image'
 import { User, Play, Music2 } from 'lucide-react'
 
 const links = [
-  { label: 'Portafolio', href: '#portafolio' },
-  { label: 'Música',     href: '#musica' },
-  { label: 'Miembros',   href: '#miembros' },
-  { label: 'Eventos',    href: '#eventos' },
-  { label: 'Merch',      href: '#merch' },
-  { label: 'Contacto',   href: '#contacto' },
+  { label: 'Portafolio', href: '/Portafolio' },
+  { label: 'Música',     href: '/Musica' },
+  { label: 'Miembros',   href: '/Miembros' },
+  { label: 'Eventos',    href: '/Eventos' },
+  // { label: 'Merch',      href: '/Merch' },
+  { label: 'Contacto',   href: '/Contacto' },
 ]
 
 const redes = [
@@ -17,16 +17,16 @@ const redes = [
     href: 'https://www.instagram.com/clandestino.s.c/',
     icon: <User size={20} />,
   },
-  {
-    label: 'YouTube',
-    href: 'https://youtube.com',
-    icon: <Play size={20} />,
-  },
-  {
-    label: 'SoundCloud',
-    href: 'https://soundcloud.com',
-    icon: <Music2 size={20} />,
-  },
+  // {
+  //   label: 'YouTube',
+  //   href: 'https://youtube.com',
+  //   icon: <Play size={20} />,
+  // },
+  // {
+  //   label: 'SoundCloud',
+  //   href: 'https://soundcloud.com',
+  //   icon: <Music2 size={20} />,
+  // },
 ]
 
 export default function Footer() {
@@ -53,19 +53,18 @@ export default function Footer() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <Image
                 src="/logo.png"
-                alt="Clandestino S.C."
+                alt="Clandestino Social Club"
                 width={44}
                 height={44}
                 style={{ borderRadius: '8px' }}
               />
               <span style={{
                 color: '#f5f5f5',
-                fontWeight: 900,
-                fontSize: '1rem',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
+                fontFamily: 'var(--font-gothic)',
+                fontSize: '1.2rem',
+                letterSpacing: '0.02em',
               }}>
-                Clandestino <span style={{ color: '#FF5B00' }}>S.C.</span>
+                Clandestino <span style={{ color: '#FF5B00' }}>social club</span>
               </span>
             </div>
             <p style={{
@@ -75,8 +74,14 @@ export default function Footer() {
               lineHeight: 1.7,
               maxWidth: '240px',
             }}>
-              Colectivo de música y arte urbano. Sonido underground desde Chiapas, México.
+              Colectivo creativo independiente <br/>
+              Producción musical <br/>
+              Beatmaking <br/>
+              DJs, audio en vivo <br/>
+              Visuales, arte y diseño <br/>
             </p>
+
+            
 
             {/* Redes */}
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>

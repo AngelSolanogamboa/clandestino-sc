@@ -1,5 +1,6 @@
 import Navbar from "../../components/Navbar";
 import Portafolio from '../../components/Portafolio'
+import Footer from '@/components/Footer'  
 export default function PortafolioPage() {
   return (
     <main style={{ 
@@ -13,6 +14,7 @@ export default function PortafolioPage() {
 
       <Navbar />
       <Portafolio />
+      <Footer />
 
     </main>
   )

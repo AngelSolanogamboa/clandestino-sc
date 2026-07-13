@@ -1,0 +1,13 @@
+specVersion: "v1"
+serviceId: "clandestino-sc-bc25e-service"
+location: "us-east4"
+schemas:
+  - source: "./schema"
+    datasource:
+      postgresql:
+        database: "clandestino-sc-bc25e-database"
+        cloudSql:
+          instanceId: "clandestino-sc-bc25e-instance"
+          # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
+          # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
+connectorDirs: ["./example"]

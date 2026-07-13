@@ -11,8 +11,9 @@ const links = [
   { label: 'Música',        href: '/Musica' },
   { label: 'Miembros',      href: '/Miembros' },
   { label: 'Eventos',       href: '/Eventos' },
-  { label: 'Merch',         href: '#merch' },
+  // { label: 'Merch',         href: '#merch' },
   { label: 'Contacto',      href: '/Contactos' },
+  // { label: 'Login',      href: '/login' },
 ]
 
 export default function Navbar() {
@@ -51,19 +52,18 @@ export default function Navbar() {
         <Link href="#inicio" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <Image
             src="/logo.png"
-            alt="Clandestino S.C."
+            alt="Clandestino social club"
             width={55}
             height={55}
             style={{ borderRadius: '8px' }}
           />
           <span style={{
             color: '#f5f5f5',
-            fontWeight: 900,
-            fontSize: '1.1rem',
-            letterSpacing: '0.05em',
-            textTransform: 'uppercase',
+            fontFamily: 'var(--font-gothic)',
+            fontSize: '1.8rem',
+            letterSpacing: '0.02em',
           }}>
-            Clandestino <span style={{ color: '#FF5B00' }}>S.C.</span>
+            Clandestino <span style={{ color: '#FF5B00' }}>social club</span>
           </span>
         </Link>
 

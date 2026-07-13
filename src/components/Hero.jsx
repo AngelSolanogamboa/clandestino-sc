@@ -77,24 +77,24 @@ export default function Hero() {
           style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
         >
           <h1 style={{
-            fontSize: 'clamp(2.5rem, 8vw, 6rem)',
-            fontWeight: 900,
-            letterSpacing: '0.05em',
-            textTransform: 'uppercase',
+            fontSize: 'clamp(3rem, 10vw, 7rem)',
+            fontFamily: 'var(--font-gothic)',
+            fontWeight: 400,
+            letterSpacing: '0.03em',
             lineHeight: 1,
             color: '#f5f5f5',
           }}>
-            CLANDESTINO
+            Clandestino
           </h1>
           <h2 style={{
-            fontSize: 'clamp(1.5rem, 5vw, 3.5rem)',
-            fontWeight: 900,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
+            fontSize: 'clamp(2rem, 6vw, 4.5rem)',
+            fontFamily: 'var(--font-gothic)',
+            fontWeight: 400,
+            letterSpacing: '0.1em',
             color: '#FF5B00',
             lineHeight: 1,
           }}>
-            S.C.
+            social club
           </h2>
         </motion.div>
 
@@ -112,8 +112,10 @@ export default function Hero() {
             maxWidth: '500px',
           }}
         >
-          Colectivo de música y arte urbano
+          Colectivo de arte urbano
         </motion.p>
+        
+        
 
         {/* Botones CTA */}
         <motion.div
