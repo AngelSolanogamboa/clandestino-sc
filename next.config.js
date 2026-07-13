@@ -19,7 +19,7 @@ const nextConfig = {
       hostname: 'res.cloudinary.com',
     },
   ],
-}
+},
   turbopack: {},
 
   webpack: (config) => {
