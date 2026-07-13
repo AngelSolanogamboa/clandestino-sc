@@ -20,6 +20,11 @@ const nextConfig = {
     },
   ],
 }
+  turbopack: {},
+
+  webpack: (config) => {
+    return config;
+  },
 }
 
 module.exports = withPWA(nextConfig)
