@@ -186,13 +186,13 @@ export default function Musica() {
             Escúchanos
           </p>
           <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, textTransform: 'uppercase', color: '#f5f5f5', letterSpacing: '0.05em' }}>
-            Música & Video
+            Música
           </h2>
         </motion.div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2.5rem' }}>
-          {/* {[
+        {/* <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2.5rem' }}>
+          {[
             { key: 'mixes',  label: 'Mixes',  icon: <Radio size={16} /> },
             // { key: 'videos', label: 'Videos', icon: <Play size={16} /> },
           ].map(t => (
@@ -207,8 +207,8 @@ export default function Musica() {
             }}>
               {t.icon} {t.label}
             </button>
-          ))} */}
-        </div>
+          ))}
+        </div> */}
 
         {/* Contenido */}
         {loading ? (

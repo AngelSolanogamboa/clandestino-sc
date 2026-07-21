@@ -45,12 +45,12 @@ export default function DashboardEventos() {
     try {
       let q
       if (isSuperadmin) {
-        q = query(collection(db, 'eventos'), orderBy('fecha', 'desc'))
+        q = query(collection(db, 'eventos'), )
       } else {
         q = query(
           collection(db, 'eventos'),
           where('autorId', '==', user.uid),
-          orderBy('fecha', 'desc')
+          
         )
       }
       const snap = await getDocs(q)

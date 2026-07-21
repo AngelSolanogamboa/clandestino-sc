@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react'
 import { db } from '@/lib/firebase'
 import { uploadToCloudinary } from '@/lib/cloudinary'
 import {
-  collection, addDoc, getDocs, deleteDoc,
+  collection, addDoc, getDocs, deleteDoc, updateDoc,
   doc, query, where, serverTimestamp, orderBy
 } from 'firebase/firestore'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, Trash2, X, ImagePlus, AlertCircle, CheckCircle } from 'lucide-react'
+import { Upload, Trash2, Edit2, X, ImagePlus, AlertCircle, CheckCircle } from 'lucide-react'
 
 const tipos = ['Fotos', 'Flyers', 'Videos']
 
@@ -17,6 +17,7 @@ export default function DashboardPortafolio() {
   const [items, setItems]       = useState([])
   const [loading, setLoading]   = useState(true)
   const [modal, setModal]       = useState(false)
+  const [editando, setEditando] = useState(null)
   const [file, setFile]         = useState(null)
   const [preview, setPreview]   = useState(null)
   const [form, setForm]         = useState({ titulo: '', tipo: 'Fotos' })
@@ -33,17 +34,34 @@ export default function DashboardPortafolio() {
     setLoading(true)
     let q
     if (isSuperadmin) {
-      q = query(collection(db, 'portafolio'), orderBy('createdAt', 'desc'))
+      q = query(collection(db, 'portafolio'), )
     } else {
-      q = query(collection(db, 'portafolio'),
+      q = query(
+        collection(db, 'portafolio'),
         where('autorId', '==', user.uid),
-        orderBy('createdAt', 'desc'))
+        // orderBy('createdAt', 'desc')
+      )
     }
     try {
       const snap = await getDocs(q)
       setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })))
     } catch { setItems([]) }
     setLoading(false)
+  }
+
+  function abrirModal(item = null) {
+    if (item) {
+      setEditando(item)
+      setForm({ titulo: item.titulo || '', tipo: item.tipo || 'Fotos' })
+      setPreview(item.url || null)
+    } else {
+      setEditando(null)
+      setForm({ titulo: '', tipo: 'Fotos' })
+      setPreview(null)
+    }
+    setFile(null)
+    setFeedback(null)
+    setModal(true)
   }
 
   function handleFile(e) {
@@ -53,35 +71,51 @@ export default function DashboardPortafolio() {
     setPreview(URL.createObjectURL(f))
   }
 
-
-
-  async function handleSubir() {
-    if (!file || !form.titulo) {
-      setFeedback({ type: 'error', msg: 'Agrega un archivo y un título' })
+  async function handleGuardar() {
+    if (!form.titulo) {
+      setFeedback({ type: 'error', msg: 'Agrega un título' })
+      return
+    }
+    if (!editando && !file) {
+      setFeedback({ type: 'error', msg: 'Selecciona un archivo' })
       return
     }
     setSaving(true)
     setFeedback(null)
     try {
-      const result = await uploadToCloudinary(file)
-      await addDoc(collection(db, 'portafolio'), {
-        titulo: form.titulo,
-        tipo: form.tipo,
-        url: result.url,
-        publicId: result.publicId,
-        resourceType: result.resourceType,
-        autorId: user.uid,
-        autorNombre: perfil?.nombre || '',
-        createdAt: serverTimestamp(),
-      })
-      setFeedback({ type: 'success', msg: 'Subido correctamente' })
-      setFile(null)
-      setPreview(null)
-      setForm({ titulo: '', tipo: 'Fotos' })
+      if (editando) {
+        // Solo actualiza título y tipo, o también el archivo si se seleccionó uno nuevo
+        let updateData = {
+          titulo: form.titulo,
+          tipo: form.tipo,
+        }
+        if (file) {
+          const result = await uploadToCloudinary(file)
+          updateData.url = result.url
+          updateData.publicId = result.publicId
+          updateData.resourceType = result.resourceType
+        }
+        await updateDoc(doc(db, 'portafolio', editando.id), updateData)
+        setFeedback({ type: 'success', msg: 'Actualizado correctamente' })
+      } else {
+        const result = await uploadToCloudinary(file)
+        await addDoc(collection(db, 'portafolio'), {
+          titulo: form.titulo,
+          tipo: form.tipo,
+          url: result.url,
+          publicId: result.publicId,
+          resourceType: result.resourceType,
+          autorId: user.uid,
+          autorNombre: perfil?.nombre || user?.email || 'Anónimo',
+          autorAvatar: perfil?.avatar || '',
+          createdAt: serverTimestamp(),
+        })
+        setFeedback({ type: 'success', msg: 'Subido correctamente' })
+      }
       await fetchItems()
       setTimeout(() => { setModal(false); setFeedback(null) }, 1000)
     } catch {
-      setFeedback({ type: 'error', msg: 'Error al subir el archivo' })
+      setFeedback({ type: 'error', msg: 'Error al guardar' })
     } finally {
       setSaving(false)
     }
@@ -114,7 +148,7 @@ export default function DashboardPortafolio() {
           </h1>
         </div>
         <button
-          onClick={() => { setModal(true); setFeedback(null) }}
+          onClick={() => abrirModal()}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             backgroundColor: '#FF5B00', color: '#0a0a0a', padding: '0.75rem 1.25rem',
@@ -151,7 +185,7 @@ export default function DashboardPortafolio() {
           <p style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sin archivos aún</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
           <AnimatePresence>
             {filtrados.map((item, i) => (
               <motion.div
@@ -165,35 +199,73 @@ export default function DashboardPortafolio() {
                   backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a', aspectRatio: '4/3',
                 }}
               >
+                {/* Media */}
                 {item.resourceType === 'video' ? (
                   <video src={item.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />
                 ) : (
                   <img src={item.url} alt={item.titulo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 )}
-                {/* Overlay */}
+
+                {/* Overlay info */}
                 <div style={{
-                  position: 'absolute', inset: 0, background: 'linear-gradient(transparent 40%, rgba(0,0,0,0.85))',
-                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0.75rem',
+                  position: 'absolute', bottom: 0, left: 0, right: 0,
+                  background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
+                  padding: '1.5rem 0.75rem 0.75rem',
                 }}>
-                  <p style={{ color: '#f5f5f5', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <p style={{ color: '#f5f5f5', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {item.titulo}
                   </p>
                   {item.autorNombre && (
-                    <p style={{ color: '#FF5B00', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.08em', marginTop: '0.1rem' }}>
+                    <p style={{ color: '#FF5B00', fontSize: '0.65rem', fontWeight: 600, marginTop: '0.1rem' }}>
                       {item.autorNombre}
                     </p>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.4rem' }}>
-                    <span style={{ color: '#FF5B00', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em' }}>{item.tipo}</span>
-                    {(isSuperadmin || item.autorId === user?.uid) && (
+                </div>
+
+                {/* Botones acción */}
+                <div style={{
+                  position: 'absolute', top: '0.5rem', right: '0.5rem',
+                  display: 'flex', gap: '0.35rem',
+                }}>
+                  {(isSuperadmin || item.autorId === user?.uid) && (
+                    <>
+                      <button
+                        onClick={() => abrirModal(item)}
+                        style={{
+                          background: 'rgba(10,10,10,0.8)', border: '1px solid #2a2a2a',
+                          borderRadius: '6px', padding: '0.35rem', cursor: 'pointer',
+                          color: '#f5f5f5', display: 'flex', transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#FF5B00'; e.currentTarget.style.color = '#FF5B00' }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2a2a'; e.currentTarget.style.color = '#f5f5f5' }}
+                      >
+                        <Edit2 size={13} />
+                      </button>
                       <button
                         onClick={() => handleEliminar(item)}
-                        style={{ background: 'rgba(255,68,68,0.2)', border: 'none', borderRadius: '4px', padding: '0.3rem', cursor: 'pointer', color: '#ff4444', display: 'flex' }}
+                        style={{
+                          background: 'rgba(10,10,10,0.8)', border: '1px solid #2a2a2a',
+                          borderRadius: '6px', padding: '0.35rem', cursor: 'pointer',
+                          color: '#f5f5f5', display: 'flex', transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#ff4444'; e.currentTarget.style.color = '#ff4444' }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2a2a'; e.currentTarget.style.color = '#f5f5f5' }}
                       >
                         <Trash2 size={13} />
                       </button>
-                    )}
-                  </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Badge tipo */}
+                <div style={{ position: 'absolute', top: '0.5rem', left: '0.5rem' }}>
+                  <span style={{
+                    backgroundColor: 'rgba(255,91,0,0.2)', color: '#FF5B00',
+                    padding: '0.15rem 0.5rem', borderRadius: '4px',
+                    fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                  }}>
+                    {item.tipo}
+                  </span>
                 </div>
               </motion.div>
             ))}
@@ -201,7 +273,7 @@ export default function DashboardPortafolio() {
         </div>
       )}
 
-      {/* Modal subir */}
+      {/* Modal subir/editar */}
       <AnimatePresence>
         {modal && (
           <motion.div
@@ -218,38 +290,52 @@ export default function DashboardPortafolio() {
                 <X size={18} />
               </button>
               <h2 style={{ color: '#f5f5f5', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.5rem' }}>
-                Subir archivo
+                {editando ? 'Editar archivo' : 'Subir archivo'}
               </h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {/* Drop zone */}
+                {/* Dropzone */}
                 <label style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                   border: '2px dashed', borderColor: preview ? '#FF5B00' : '#2a2a2a',
-                  borderRadius: '10px', padding: '1.5rem', cursor: 'pointer',
-                  backgroundColor: '#0a0a0a', transition: 'border-color 0.2s', minHeight: '140px',
+                  borderRadius: '10px', cursor: 'pointer', backgroundColor: '#0a0a0a',
+                  overflow: 'hidden', minHeight: '140px', transition: 'border-color 0.2s',
                 }}>
                   {preview ? (
                     file?.type.startsWith('video') ? (
-                      <video src={preview} style={{ maxHeight: '120px', borderRadius: '6px' }} controls />
+                      <video src={preview} style={{ maxHeight: '140px', width: '100%', objectFit: 'cover' }} muted />
                     ) : (
-                      <img src={preview} alt="preview" style={{ maxHeight: '120px', borderRadius: '6px', objectFit: 'contain' }} />
+                      <img src={preview} alt="preview" style={{ maxHeight: '140px', width: '100%', objectFit: 'cover' }} />
                     )
                   ) : (
-                    <>
-                      <Upload size={28} color="#FF5B00" style={{ marginBottom: '0.5rem', opacity: 0.6 }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.5rem' }}>
+                      <Upload size={28} color="#FF5B00" style={{ opacity: 0.6 }} />
                       <p style={{ color: '#f5f5f5', opacity: 0.4, fontSize: '0.82rem', textAlign: 'center' }}>
-                        Clic para seleccionar imagen o video
+                        {editando ? 'Clic para cambiar archivo (opcional)' : 'Clic para seleccionar imagen o video'}
                       </p>
-                    </>
+                    </div>
                   )}
                   <input type="file" accept="image/*,video/*" onChange={handleFile} style={{ display: 'none' }} />
                 </label>
 
+                {/* Si está editando y hay preview del archivo actual, botón para cambiarlo */}
+                {editando && preview && (
+                  <button
+                    onClick={() => { setFile(null); setPreview(editando.url) }}
+                    style={{
+                      background: 'none', border: '1px solid #2a2a2a', color: '#f5f5f5',
+                      opacity: 0.4, fontSize: '0.72rem', cursor: 'pointer', borderRadius: '4px',
+                      padding: '0.3rem 0.75rem', letterSpacing: '0.05em',
+                    }}
+                  >
+                    Mantener archivo original
+                  </button>
+                )}
+
                 <input
                   value={form.titulo}
                   onChange={e => setForm({ ...form, titulo: e.target.value })}
-                  placeholder="Título del archivo"
+                  placeholder="Título"
                   style={inputStyle}
                   onFocus={e => e.target.style.borderColor = '#FF5B00'}
                   onBlur={e => e.target.style.borderColor = '#2a2a2a'}
@@ -267,6 +353,16 @@ export default function DashboardPortafolio() {
                   ))}
                 </select>
 
+                {saving && (
+                  <div style={{ backgroundColor: '#0a0a0a', borderRadius: '6px', height: '6px', overflow: 'hidden' }}>
+                    <motion.div
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      style={{ height: '100%', width: '40%', backgroundColor: '#FF5B00', borderRadius: '6px' }}
+                    />
+                  </div>
+                )}
+
                 {feedback && (
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem',
@@ -280,18 +376,8 @@ export default function DashboardPortafolio() {
                   </div>
                 )}
 
-                {saving && (
-                  <div style={{ backgroundColor: '#0a0a0a', borderRadius: '6px', height: '6px', overflow: 'hidden' }}>
-                    <motion.div
-                      animate={{ x: ['-100%', '100%'] }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      style={{ height: '100%', width: '40%', backgroundColor: '#FF5B00', borderRadius: '6px' }}
-                    />
-                  </div>
-                )}
-
                 <button
-                  onClick={handleSubir}
+                  onClick={handleGuardar}
                   disabled={saving}
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
@@ -302,7 +388,7 @@ export default function DashboardPortafolio() {
                     cursor: saving ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
                   }}
                 >
-                  {saving ? 'Subiendo...' : <><Upload size={15} /> Subir</>}
+                  {saving ? 'Guardando...' : editando ? 'Actualizar' : <><Upload size={15} /> Subir</>}
                 </button>
               </div>
             </motion.div>

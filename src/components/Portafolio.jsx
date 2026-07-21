@@ -194,13 +194,14 @@ export default function Portafolio() {
       {/* Lightbox */}
       <AnimatePresence>
         {selected && (
+         
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setSelected(null)}
             style={{
               position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.92)',
               zIndex: 200, display: 'flex', alignItems: 'center',
-              justifyContent: 'center', padding: '2rem',
+              justifyContent: 'center', padding: '1.5rem',
             }}
           >
             <motion.div
@@ -208,43 +209,81 @@ export default function Portafolio() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.85, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              style={{ position: 'relative', maxWidth: '800px', width: '100%' }}
+              style={{
+                position: 'relative',
+                width: '100%',
+                maxWidth: '860px',
+                maxHeight: '90vh',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
             >
-              {/* Media */}
-              {selected.resourceType === 'video' ? (
-                <video
-                  src={selected.url}
-                  controls
-                  autoPlay
-                  style={{ width: '100%', borderRadius: '8px', display: 'block' }}
-                />
-              ) : (
-                <img
-                  src={selected.url}
-                  alt={selected.titulo}
-                  style={{ width: '100%', borderRadius: '8px', display: 'block' }}
-                />
-              )}
+              {/* Botón cerrar SIEMPRE visible arriba */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                marginBottom: '0.75rem',
+                flexShrink: 0,
+              }}>
+                <button
+                  onClick={() => setSelected(null)}
+                  style={{
+                    background: '#FF5B00', border: 'none', borderRadius: '50%',
+                    width: '36px', height: '36px', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', color: '#0a0a0a', flexShrink: 0,
+                  }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
 
-              {/* Botón cerrar */}
-              <button
-                onClick={() => setSelected(null)}
-                style={{
-                  position: 'absolute', top: '-1rem', right: '-1rem',
-                  background: '#FF5B00', border: 'none', borderRadius: '50%',
-                  width: '36px', height: '36px', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', color: '#0a0a0a',
-                }}
-              >
-                <X size={18} />
-              </button>
+              {/* Contenedor de la imagen con altura fija */}
+              <div style={{
+                width: '100%',
+                height: 'calc(80vh - 100px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#111',
+                borderRadius: '8px',
+                overflow: 'hidden',
+              }}>
+                {selected.resourceType === 'video' ? (
+                  <video
+                    src={selected.url}
+                    controls
+                    autoPlay
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      width: 'auto',
+                      height: 'auto',
+                      display: 'block',
+                    }}
+                  />
+                ) : (
+                  <img
+                    src={selected.url}
+                    alt={selected.titulo}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain',
+                      display: 'block',
+                    }}
+                  />
+                )}
+              </div>
+
 
               {/* Pie del lightbox */}
               <div style={{
                 display: 'flex', justifyContent: 'space-between',
                 alignItems: 'center', marginTop: '0.75rem',
-                flexWrap: 'wrap', gap: '0.5rem',
+                flexWrap: 'wrap', gap: '0.5rem', flexShrink: 0,
               }}>
                 <div>
                   <p style={{

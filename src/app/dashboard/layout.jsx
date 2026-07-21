@@ -13,6 +13,7 @@ import {
 const navItems = {
   superadmin: [
     { label: 'Inicio',       href: '/dashboard',           icon: <LayoutDashboard size={18} /> },
+    { label: 'Mi perfil',    href: '/dashboard/perfil',    icon: <Users size={18} /> },
     { label: 'Portafolio',   href: '/dashboard/portafolio',icon: <ImageIcon size={18} /> },
     { label: 'Música',       href: '/dashboard/musica',    icon: <Music size={18} /> },
     { label: 'Eventos',      href: '/dashboard/eventos',   icon: <CalendarDays size={18} /> },

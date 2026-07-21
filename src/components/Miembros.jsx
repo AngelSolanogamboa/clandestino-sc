@@ -129,7 +129,7 @@ export default function Miembros() {
     
     async function fetchMiembros() {
       try {
-        const q = query(collection(db, 'users'), where('rol', '==', 'colaborador'))
+        const q = query(collection(db, 'users'), where('rol', 'in', ['colaborador', 'superadmin']))
         const snap = await getDocs(q)
         setMiembros(snap.docs.map(d => ({
           id: d.id,

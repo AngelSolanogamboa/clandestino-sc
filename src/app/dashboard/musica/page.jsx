@@ -5,7 +5,7 @@ import { db } from '@/lib/firebase'
 import { uploadToCloudinary } from '@/lib/cloudinary'
 import {
   collection, addDoc, getDocs, deleteDoc,
-  updateDoc, doc, query, orderBy, serverTimestamp
+  updateDoc, doc, query, orderBy, serverTimestamp, where
 } from 'firebase/firestore'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Trash2, Edit2, X, Music2, Play, AlertCircle, CheckCircle, Radio, Upload } from 'lucide-react'
@@ -44,13 +44,20 @@ export default function DashboardMusica() {
 
   async function fetchItems() {
     if (!perfil) return
-    setLoading(true)
-    try {
-      const q = query(collection(db, 'musica'), orderBy('createdAt', 'desc'))
-      const snap = await getDocs(q)
-      setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    } catch { setItems([]) }
-    setLoading(false)
+        setLoading(true)
+        let q
+        if (isSuperadmin) {
+          q = query(collection(db, 'musica'), )
+        } else {
+          q = query(collection(db, 'musica'),
+            where('autorId', '==', user.uid),
+            
+          )}
+        try {
+          const snap = await getDocs(q)
+          setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+        } catch { setItems([]) }
+        setLoading(false)
   }
 
   function abrirModal(item = null) {
@@ -156,7 +163,7 @@ export default function DashboardMusica() {
             {isSuperadmin ? 'Superadmin' : 'Colaborador'}
           </p>
           <h1 style={{ color: '#f5f5f5', fontWeight: 900, fontSize: '2rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Música & Video
+            Música
           </h1>
         </div>
         <button
@@ -173,8 +180,8 @@ export default function DashboardMusica() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1.5rem' }}>
-        {/* {[
+      {/* <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1.5rem' }}>
+        {[
           { key: 'mix',   label: 'Mixes / Audio', icon: <Radio size={15} /> },
           { key: 'video', label: 'Videos',         icon: <Play size={15} /> },
         ].map(t => (
@@ -189,8 +196,8 @@ export default function DashboardMusica() {
           }}>
             {t.icon} {t.label}
           </button>
-        ))} */}
-      </div>
+        ))}
+      </div> */}
 
       {/* Lista */}
       {loading ? (
@@ -342,7 +349,7 @@ export default function DashboardMusica() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
                 {/* Selector de tipo */}
-                {!editando && (
+                {/* {!editando && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                     {[
                       { key: 'mix',   label: 'Mix / Audio', icon: <Radio size={15} /> },
@@ -360,7 +367,7 @@ export default function DashboardMusica() {
                       </button>
                     ))}
                   </div>
-                )}
+                )} */}
 
                 {/* Campos comunes */}
                 <input value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })}
