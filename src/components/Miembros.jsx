@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Instagram, Youtube, Music2, X } from 'lucide-react'
+import { Instagram, Youtube, Music2, X, User, Play } from 'lucide-react'
 import { db } from '@/lib/firebase'
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore'
 
@@ -125,8 +125,7 @@ export default function Miembros() {
   const [loading, setLoading]   = useState(true)
   const [selected, setSelected] = useState(null)
 
-   useEffect(() => {
-    
+  useEffect(() => {
     async function fetchMiembros() {
       try {
         const q = query(collection(db, 'users'), where('rol', 'in', ['colaborador', 'superadmin']))
@@ -134,10 +133,14 @@ export default function Miembros() {
         setMiembros(snap.docs.map(d => ({
           id: d.id,
           nombre: d.data().nombre || 'Sin nombre',
-          rol: d.data().rolArtistico || 'Colaborador',
+          rol: d.data().rolArtistico || d.data().rol || 'Colaborador',
           bio: d.data().bio || '',
-          foto: d.data().avatar || 'https://placehold.co/400x400/1a1a1a/FF5B00?text=' + encodeURIComponent(d.data().nombre || '?'),
-          redes: d.data().redes || {},
+          foto: d.data().avatar || `https://placehold.co/400x400/1a1a1a/FF5B00?text=${encodeURIComponent((d.data().nombre || '?')[0])}`,
+          redes: {
+            instagram: d.data().redes?.instagram || '',
+            youtube: d.data().redes?.youtube || '',
+            soundcloud: d.data().redes?.soundcloud || '',
+          },
           tags: d.data().tags || [],
         })))
       } catch {
@@ -299,15 +302,19 @@ export default function Miembros() {
                   ))}
                 </div>
 
+                
+                
                 {/* Redes */}
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                  {selected.redes.instagram && (
-                    <a href={selected.redes.instagram} target="_blank" rel="noopener noreferrer"
+                  {selected.redes?.instagram && (
+                    <a
+                      href={selected.redes.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{
                         display: 'flex', alignItems: 'center', gap: '0.5rem',
                         color: '#f5f5f5', textDecoration: 'none', opacity: 0.7,
-                        fontSize: '0.8rem', fontWeight: 600,
-                        transition: 'opacity 0.2s',
+                        fontSize: '0.8rem', fontWeight: 600, transition: 'opacity 0.2s',
                       }}
                       onMouseEnter={e => e.currentTarget.style.opacity = 1}
                       onMouseLeave={e => e.currentTarget.style.opacity = 0.7}
@@ -315,13 +322,15 @@ export default function Miembros() {
                       <User size={16} /> Instagram
                     </a>
                   )}
-                  {selected.redes.youtube && (
-                    <a href={selected.redes.youtube} target="_blank" rel="noopener noreferrer"
+                  {selected.redes?.youtube && (
+                    <a
+                      href={selected.redes.youtube}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{
                         display: 'flex', alignItems: 'center', gap: '0.5rem',
                         color: '#f5f5f5', textDecoration: 'none', opacity: 0.7,
-                        fontSize: '0.8rem', fontWeight: 600,
-                        transition: 'opacity 0.2s',
+                        fontSize: '0.8rem', fontWeight: 600, transition: 'opacity 0.2s',
                       }}
                       onMouseEnter={e => e.currentTarget.style.opacity = 1}
                       onMouseLeave={e => e.currentTarget.style.opacity = 0.7}
@@ -329,13 +338,15 @@ export default function Miembros() {
                       <Play size={16} /> YouTube
                     </a>
                   )}
-                  {selected.redes.soundcloud && (
-                    <a href={selected.redes.soundcloud} target="_blank" rel="noopener noreferrer"
+                  {selected.redes?.soundcloud && (
+                    <a
+                      href={selected.redes.soundcloud}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{
                         display: 'flex', alignItems: 'center', gap: '0.5rem',
                         color: '#f5f5f5', textDecoration: 'none', opacity: 0.7,
-                        fontSize: '0.8rem', fontWeight: 600,
-                        transition: 'opacity 0.2s',
+                        fontSize: '0.8rem', fontWeight: 600, transition: 'opacity 0.2s',
                       }}
                       onMouseEnter={e => e.currentTarget.style.opacity = 1}
                       onMouseLeave={e => e.currentTarget.style.opacity = 0.7}
@@ -343,7 +354,13 @@ export default function Miembros() {
                       <Music2 size={16} /> SoundCloud
                     </a>
                   )}
+                  {!selected.redes?.instagram && !selected.redes?.youtube && !selected.redes?.soundcloud && (
+                    <p style={{ color: '#f5f5f5', opacity: 0.2, fontSize: '0.78rem' }}>
+                      Sin redes configuradas
+                    </p>
+                  )}
                 </div>
+                
               </div>
 
               {/* Botón cerrar */}
