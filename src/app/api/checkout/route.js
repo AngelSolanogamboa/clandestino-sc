@@ -11,7 +11,7 @@ export async function POST(req) {
     const { items, email } = await req.json()
 
     if (!items || items.length === 0) {
-      return NextResponse.json({ error: 'Carrito vacío' }, { status: 400 })
+      return NextResponse.json({ error: 'Carrito vacío.' }, { status: 400 })
     }
 
     const line_items = items.map(item => ({
