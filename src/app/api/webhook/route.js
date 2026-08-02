@@ -6,6 +6,8 @@ import {
   getDocs, updateDoc, doc, serverTimestamp, increment
 } from 'firebase/firestore'
 
+export const runtime = 'nodejs'
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 export async function POST(req) {
