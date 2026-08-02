@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
+import { ShoppingBag } from 'lucide-react'
+import { useCart } from "@/context/CartContext"
 
 
 const links = [
@@ -13,12 +15,14 @@ const links = [
   { label: 'Eventos',       href: '/Eventos' },
   // { label: 'Merch',         href: '#merch' },
   { label: 'Contacto',      href: '/Contactos' },
-  // { label: 'Login',      href: '/login' },
+  { label: 'Login',      href: '/login' },
 ]
+
 
 export default function Navbar() {
   const [open, setOpen]       = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { totalItems, setCartOpen } = useCart()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -49,7 +53,7 @@ export default function Navbar() {
       }}>
 
         {/* Logo */}
-        <Link href="#inicio" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <Image
             src="/logo.png"
             alt="Clandestino social club"
@@ -93,6 +97,32 @@ export default function Navbar() {
               </a>
             </li>
           ))}
+          <li>
+            <button
+              onClick={() => setCartOpen(true)}
+              style={{
+                position: 'relative', background: 'none', border: '1px solid #2a2a2a',
+                borderRadius: '8px', padding: '0.45rem 0.75rem', cursor: 'pointer',
+                color: '#f5f5f5', display: 'flex', alignItems: 'center', gap: '0.4rem',
+                transition: 'border-color 0.2s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = '#FF5B00'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = '#2a2a2a'}
+            >
+              <ShoppingBag size={16} />
+              {totalItems > 0 && (
+                <span style={{
+                  backgroundColor: '#FF5B00', color: '#0a0a0a',
+                  borderRadius: '50%', width: '18px', height: '18px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.62rem', fontWeight: 900, position: 'absolute',
+                  top: '-6px', right: '-6px',
+                }}>
+                  {totalItems}
+                </span>
+              )}
+            </button>
+          </li>
         </ul>
 
         {/* Botón menú móvil */}

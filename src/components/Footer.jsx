@@ -8,7 +8,7 @@ const links = [
   { label: 'Miembros',   href: '/Miembros' },
   { label: 'Eventos',    href: '/Eventos' },
   // { label: 'Merch',      href: '/Merch' },
-  { label: 'Contacto',   href: '/Contacto' },
+  { label: 'Contacto',   href: '/Contactos' },
 ]
 
 const redes = [
@@ -84,44 +84,10 @@ export default function Footer() {
             
 
             {/* Redes */}
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-              {redes.map(red => (
-                <a
-                  key={red.label}
-                  href={red.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={red.label}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '38px',
-                    height: '38px',
-                    backgroundColor: '#1a1a1a',
-                    border: '1px solid #2a2a2a',
-                    borderRadius: '8px',
-                    color: '#f5f5f5',
-                    opacity: 0.6,
-                    textDecoration: 'none',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.opacity = 1
-                    e.currentTarget.style.borderColor = '#FF5B00'
-                    e.currentTarget.style.color = '#FF5B00'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.opacity = 0.6
-                    e.currentTarget.style.borderColor = '#2a2a2a'
-                    e.currentTarget.style.color = '#f5f5f5'
-                  }}
-                >
-                  {red.icon}
-                </a>
-              ))}
-            </div>
-          </div>
+            {/* <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+             
+            </div> */}
+          </div> 
 
           {/* Navegación */}
           <div>
@@ -174,24 +140,43 @@ export default function Footer() {
               Contacto
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {redes.map(red => (
+                <a
+                  key={red.label}
+                  href={red.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={red.label}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '38px',
+                    height: '38px',
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #2a2a2a',
+                    borderRadius: '8px',
+                    color: '#f5f5f5',
+                    opacity: 0.6,
+                    textDecoration: 'none',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.opacity = 1
+                    e.currentTarget.style.borderColor = '#FF5B00'
+                    e.currentTarget.style.color = '#FF5B00'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.opacity = 0.6
+                    e.currentTarget.style.borderColor = '#2a2a2a'
+                    e.currentTarget.style.color = '#f5f5f5'
+                  }}
+                >
+                  {red.icon}
+                </a>
+              ))}
               <a
-                href="https://www.instagram.com/clandestino.s.c/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: '#f5f5f5',
-                  opacity: 0.5,
-                  fontSize: '0.85rem',
-                  textDecoration: 'none',
-                  transition: 'opacity 0.2s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.opacity = 1}
-                onMouseLeave={e => e.currentTarget.style.opacity = 0.5}
-              >
-                @clandestino.s.c
-              </a>
-              <a
-                href="#contacto"
+                href="/Contactos"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
