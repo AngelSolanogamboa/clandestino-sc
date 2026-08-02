@@ -1,10 +1,13 @@
-import Stripe from 'stripe'
 import { NextResponse } from 'next/server'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+export const runtime = 'nodejs'
 
 export async function POST(req) {
   try {
+    // Inicializar Stripe dentro de la función
+    const Stripe = (await import('stripe')).default
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+
     const { items, email } = await req.json()
 
     if (!items || items.length === 0) {
@@ -19,7 +22,7 @@ export async function POST(req) {
           description: item.variante ? `Variante: ${item.variante}` : undefined,
           images: item.foto ? [item.foto] : [],
         },
-        unit_amount: Math.round(item.precio * 100), // Stripe usa centavos
+        unit_amount: Math.round(item.precio * 100),
       },
       quantity: item.cantidad,
     }))
@@ -40,11 +43,6 @@ export async function POST(req) {
           variante: i.variante || '',
           autorId: i.autorId || '',
         }))),
-      },
-      payment_method_options: {
-        card: {
-          installments: { enabled: true }, // Meses sin intereses
-        },
       },
       locale: 'es',
     })

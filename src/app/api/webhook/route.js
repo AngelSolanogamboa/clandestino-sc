@@ -1,4 +1,3 @@
-import Stripe from 'stripe'
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/firebase'
 import {
@@ -8,27 +7,25 @@ import {
 
 export const runtime = 'nodejs'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-
 export async function POST(req) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')
 
   let event
   try {
+    const Stripe = (await import('stripe')).default
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
     event = stripe.webhooks.constructEvent(
       body, sig, process.env.STRIPE_WEBHOOK_SECRET
     )
   } catch (err) {
-    console.error('Webhook error:', err.message)
+    console.error('Webhook signature error:', err.message)
     return NextResponse.json({ error: err.message }, { status: 400 })
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object
-
     try {
-      // Verificar que no guardamos este pedido ya
       const q = query(
         collection(db, 'pedidos'),
         where('sessionId', '==', session.id)
@@ -36,10 +33,8 @@ export async function POST(req) {
       const existing = await getDocs(q)
 
       if (existing.empty) {
-        // Parsear items del metadata
         const items = JSON.parse(session.metadata?.items || '[]')
 
-        // Guardar pedido confirmado
         await addDoc(collection(db, 'pedidos'), {
           sessionId: session.id,
           userId: session.client_reference_id || 'anonimo',
@@ -52,7 +47,6 @@ export async function POST(req) {
           createdAt: serverTimestamp(),
         })
 
-        // Reducir stock de cada producto
         for (const item of items) {
           if (item.id) {
             try {
@@ -66,9 +60,7 @@ export async function POST(req) {
           }
         }
       } else {
-        // Si ya existe, solo actualizar estado
-        const pedidoDoc = existing.docs[0]
-        await updateDoc(doc(db, 'pedidos', pedidoDoc.id), {
+        await updateDoc(doc(db, 'pedidos', existing.docs[0].id), {
           estado: 'procesando',
         })
       }
@@ -79,8 +71,4 @@ export async function POST(req) {
   }
 
   return NextResponse.json({ received: true })
-}
-
-export const config = {
-  api: { bodyParser: false },
 }
