@@ -8,12 +8,12 @@ import { useCart } from "@/context/CartContext"
 
 
 const links = [
-  { label: 'Inicio',        href: '/' },
+  // { label: 'Inicio',        href: '/' },
   { label: 'Portafolio',    href: '/Portafolio' },
   { label: 'Música',        href: '/Musica' },
   { label: 'Miembros',      href: '/Miembros' },
   { label: 'Eventos',       href: '/Eventos' },
-  // { label: 'Merch',         href: '#merch' },
+  { label: 'Tienda',         href: '/Tienda' },
   { label: 'Contacto',      href: '/Contactos' },
   { label: 'Login',      href: '/login' },
 ]

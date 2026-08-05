@@ -4,7 +4,6 @@ import Sponsors from '@/components/Sponsors'
 import Footer from '@/components/Footer'
 import Tienda from '@/components/Tienda'
 import Carrito from '@/components/Carrito'
-import Eventos from '@/components/Eventos'
 
 
 export default function Home() {
@@ -19,10 +18,7 @@ export default function Home() {
     }}>
 
       <Navbar />
-      <Hero />
-      
       <Tienda />
-      {/* <Eventos /> */}
       <Sponsors />
       <Footer />
       <Carrito />

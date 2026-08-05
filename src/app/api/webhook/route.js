@@ -47,6 +47,26 @@ export async function POST(req) {
           createdAt: serverTimestamp(),
         })
 
+        // Enviar email de confirmación
+        if (session.customer_email) {
+          try {
+            await fetch(`${process.env.NEXT_PUBLIC_URL}/api/email/confirmacion`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                nombre: session.customer_details?.name || '',
+                pedidoId: session.id,
+                productos: items,
+                total: session.amount_total / 100,
+                email: session.customer_email,
+              }),
+            })
+          } catch (emailErr) {
+            console.error('Error enviando email:', emailErr)
+            // No fallar el webhook por error de email
+          }
+        }
+
         for (const item of items) {
           if (item.id) {
             try {
